@@ -3,7 +3,7 @@ I'm choosing enterprise Java. The choise of tools depends wether we are doing pl
 First, we need to choose a tool for the CI/CD platform: Jenkins. It's usually safe to pick an industry standard solution unless there is no clear reasoning to choose something else. 
 
 The components for linting, building, testing, packaking and deployment would follow the principle:
-- Linting: SonarCube, a static code analyze tool can be configured to do this
+- Linting: SonarQube, a static code analyze tool can be configured to do this
 - Building: Maven
 - Testing: JUnit for unit testing, Robot Framework for end-to-end testing.
 - Packaking: Maven again
