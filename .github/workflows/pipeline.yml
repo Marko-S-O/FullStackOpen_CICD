@@ -83,6 +83,12 @@ jobs:
       - name: Ensure phonebook-backend/dist directory exists
         working-directory: ./phonebook-frontend
         run: mkdir -p ../phonebook-backend/dist
+      - name: List current folder
+        working-directory: ./phonebook-frontend
+        run: ls -al .        
+      - name: List dist folder
+        working-directory: ./phonebook-frontend
+        run: ls -al dist        
       - name: Copy front-end dist folder to backend directory
         working-directory: ./phonebook-frontend
         run: cp -r dist ../phonebook-backend
