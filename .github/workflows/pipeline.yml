@@ -1,0 +1,139 @@
+name: Phonebook deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:    
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  prepare_frontend:    
+    runs-on: ubuntu-latest
+    steps:      
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4   
+
+      # Build the app
+      - name: Install dependencies fe
+        run: npm ci
+        id: Install_dependencies_fe
+        working-directory: ./phonebook-frontend
+      - name: Check style fe       
+        run: npm run eslint
+        id: Check_style_fe
+        working-directory: ./phonebook-frontend        
+      - name: Build fe
+        run: npm run build
+        id: Build
+        working-directory: ./phonebook-frontend        
+          
+      # Discord hooks for failure notifications
+      - name: Preparation has failed fe
+        uses: stegzilla/discord-notify@v2
+        if: ${{ failure() }}
+        with:
+          title: Build failed
+          message: |
+            Build failed for front-end
+            [Link to GitHub action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            Commit URL: ${{ github.event.head_commit.url || 'N/A' }}
+          webhook_url: ${{ secrets.DISCORD_WEBHOOK }}        
+
+  prepare_backend:  
+    runs-on: ubuntu-latest
+    steps:      
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4   
+        with: 
+          node-version: '20'
+
+      # Prepare the app
+      - name: Install dependencies be
+        run: npm ci
+        id: Install_dependencies_be
+        working-directory: ./phonebook-backend
+      - name: Check style be       
+        run: npm run eslint
+        id: Check_style_be
+        working-directory: ./phonebook-backend             
+          
+      # Discord hooks for failure notifications
+      - name: Preparation has failed be
+        uses: stegzilla/discord-notify@v2
+        if: ${{ failure() }}
+        with:
+          title: Backend preparation failed
+          message: |
+            Preparation failed for back-end
+            [Link to GitHub action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            Commit URL: ${{ github.event.head_commit.url || 'N/A' }}
+          webhook_url: ${{ secrets.DISCORD_WEBHOOK }}        
+
+
+  production_deployment:
+    needs: [prepare_frontend, prepare_backend]
+    runs-on: ubuntu-latest
+    steps:      
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4  
+
+      # Copy front-end dist directory to the backend directory
+      - name: Copy front-end dist folder to backend directory
+        run: cp -r ./phonebook-frontend/dist ./backend
+
+      # Production deployment             
+      - name: Deploy the app
+        id: Deploy_the_app
+        if: |
+          github.event_name == 'push' && 
+          !contains(join(github.event.commits.*.message, ' '), '#skip') && 
+          !contains(join(github.event.commits.*.message, ' '), '#SKIP') && 
+          !contains(join(github.event.commits.*.message, ' '), '#Skip') 
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      # Discord hooks for failure notifications
+      - name: Production deployment failed
+        uses: stegzilla/discord-notify@v2
+        if: ${{ failure() }}
+        with:
+          title: Build failed
+          message: |
+            Production deployment has failed
+            [Link to GitHub action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            Commit URL: ${{ github.event.head_commit.url || 'N/A' }}
+          webhook_url: ${{ secrets.DISCORD_WEBHOOK }}             
+
+  tag_release:
+    # Check out the code and bump the version tag
+    needs: [production_deployment]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v4    
+      with:
+        ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+        fetch-depth: '0'      
+    - name: Bump version and push tag
+      id: tag_version
+      uses: anothrNick/github-tag-action@1.64.0
+      with: 
+        default_bump: 'minor'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    # Discord hooks for success notifications - get the new tag into the message
+    - name: The build has succeeded
+      uses: stegzilla/discord-notify@v2
+      if: ${{ success() }}
+      with:
+        title: Build successful
+        message: |
+          Build successful.
+          Version Tag: ${{ steps.tag_version.outputs.new_tag }}  
+          Commit URL: ${{ github.event.head_commit.url }}
+        webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
