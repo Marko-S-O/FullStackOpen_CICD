@@ -55,7 +55,7 @@ jobs:
         id: Install_dependencies_be
         working-directory: ./phonebook-backend
       - name: Check style be       
-        run: npm run eslint
+        run: npm run lint
         id: Check_style_be
         working-directory: ./phonebook-backend             
           
