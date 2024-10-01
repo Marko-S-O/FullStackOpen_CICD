@@ -50,8 +50,8 @@ jobs:
         run: cp -r dist ../phonebook-backend
 
       # Production deployment             
+      - uses: superfly/flyctl-actions/setup-flyctl@master         
       - name: Deploy the app
-        uses: superfly/flyctl-actions/setup-flyctl@master   
         run: flyctl deploy --remote-only      
         id: Deploy_the_app
         if: |
