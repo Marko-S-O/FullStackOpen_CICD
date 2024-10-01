@@ -81,9 +81,11 @@ jobs:
 
       # Copy front-end dist directory to the backend directory
       - name: Ensure phonebook-backend/dist directory exists
-        run: mkdir -p ./phonebook-backend/dist
+        working-directory: ./phonebook-frontend
+        run: mkdir -p ../phonebook-backend/dist
       - name: Copy front-end dist folder to backend directory
-        run: cp -r ${{ github.workspace }}/phonebook-frontend/dist ${{ github.workspace }}/phonebook-backend
+        working-directory: ./phonebook-frontend
+        run: cp -r dist ../phonebook-backend
 
       # Production deployment             
       - name: Deploy the app
