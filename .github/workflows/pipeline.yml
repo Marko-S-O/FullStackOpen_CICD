@@ -27,7 +27,11 @@ jobs:
       - name: Build fe
         run: npm run build
         id: Build
-        working-directory: ./phonebook-frontend        
+        working-directory: ./phonebook-frontend  
+      - name: List directory      
+        run: ls -al ./phonebook-frontend      
+      - name: List main directory      
+        run: ls -al .
           
       # Discord hooks for failure notifications
       - name: Preparation has failed fe
