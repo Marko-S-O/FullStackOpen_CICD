@@ -12,8 +12,7 @@ jobs:
   build_and_deploy:    
     runs-on: ubuntu-latest
     steps:      
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master           
+      - uses: actions/checkout@v4        
       - uses: actions/setup-node@v4   
         with: 
           node-version: '20'
@@ -64,7 +63,7 @@ jobs:
 
       # Production deployment             
       - name: Deploy the app
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: superfly/flyctl-actions/setup-flyctl@master   
         id: Deploy_the_app
         if: |
           github.event_name == 'push' && 
