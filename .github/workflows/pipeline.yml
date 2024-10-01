@@ -21,7 +21,7 @@ jobs:
         id: Install_dependencies_fe
         working-directory: ./phonebook-frontend
       - name: Check style fe       
-        run: npm run eslint
+        run: npm run lint
         id: Check_style_fe
         working-directory: ./phonebook-frontend        
       - name: Build fe
