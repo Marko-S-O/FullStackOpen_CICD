@@ -47,7 +47,7 @@ jobs:
         run: mkdir -p ./dist
       - name: Copy front-end dist folder to backend directory
         working-directory: ./phonebook-backend
-        run: cp -r ../phonebook-frontend/dist ./dist
+        run: cp -r ../phonebook-frontend/dist/* ./dist
 
       # Production deployment             
       - uses: superfly/flyctl-actions/setup-flyctl@master         
@@ -99,9 +99,9 @@ jobs:
       uses: stegzilla/discord-notify@v2
       if: ${{ success() }}
       with:
-        title: Build successful
+        title: Deployment successful
         message: |
-          Build successful.
+          Build and deployment successful. New version tag created.
           Version Tag: ${{ steps.tag_version.outputs.new_tag }}  
           Commit URL: ${{ github.event.head_commit.url }}
         webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
