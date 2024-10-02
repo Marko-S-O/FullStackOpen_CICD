@@ -46,12 +46,13 @@ jobs:
         working-directory: ./phonebook-frontend
         run: mkdir -p ../phonebook-backend/dist
       - name: Copy front-end dist folder to backend directory
-        working-directory: ./phonebook-frontend
+        working-directory: ./phonebook-backend
         run: cp -r dist ../phonebook-backend
 
       # Production deployment             
       - uses: superfly/flyctl-actions/setup-flyctl@master         
       - name: Deploy the app
+        working-directory: ./phonebook-backend      
         run: flyctl deploy --remote-only      
         id: Deploy_the_app
         if: |
