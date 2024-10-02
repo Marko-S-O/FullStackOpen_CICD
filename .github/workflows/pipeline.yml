@@ -43,11 +43,11 @@ jobs:
                 
       # Copy front-end dist directory to the backend directory
       - name: Ensure phonebook-backend/dist directory exists
-        working-directory: ./phonebook-frontend
-        run: mkdir -p ../phonebook-backend/dist
+        working-directory: ./phonebook-backend
+        run: mkdir -p ./dist
       - name: Copy front-end dist folder to backend directory
         working-directory: ./phonebook-backend
-        run: cp -r dist ../phonebook-backend
+        run: cp -r ../phonebook-frontend/dist ./dist
 
       # Production deployment             
       - uses: superfly/flyctl-actions/setup-flyctl@master         
