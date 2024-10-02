@@ -17,7 +17,7 @@ jobs:
         with: 
           node-version: '20'
 
-      # Build the app
+      # Build front-end
       - name: Install dependencies fe
         run: npm ci
         id: Install_dependencies_fe
@@ -31,7 +31,7 @@ jobs:
         id: Build
         working-directory: ./phonebook-frontend  
           
-      # Prepare the app
+      # Prepare the back-end
       - name: Install dependencies be
         run: npm ci
         id: Install_dependencies_be
@@ -105,3 +105,4 @@ jobs:
           Version Tag: ${{ steps.tag_version.outputs.new_tag }}  
           Commit URL: ${{ github.event.head_commit.url }}
         webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
+      
