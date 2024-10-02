@@ -17,7 +17,7 @@ jobs:
         with: 
           node-version: '20'
 
-      # Build front-end
+      # Prepare front-end: install dependenices, lint, build
       - name: Install dependencies fe
         run: npm ci
         id: Install_dependencies_fe
@@ -31,7 +31,7 @@ jobs:
         id: Build
         working-directory: ./phonebook-frontend  
           
-      # Prepare the back-end
+      # Prepare the back-end: install dependenices, lint
       - name: Install dependencies be
         run: npm ci
         id: Install_dependencies_be
@@ -41,7 +41,7 @@ jobs:
         id: Check_style_be
         working-directory: ./phonebook-backend             
                 
-      # Copy front-end dist directory to the backend directory
+      # Copy front-end dist directory to the backend directory for production deployment
       - name: Ensure phonebook-backend/dist directory exists
         working-directory: ./phonebook-backend
         run: mkdir -p ./dist
@@ -49,7 +49,7 @@ jobs:
         working-directory: ./phonebook-backend
         run: cp -r ../phonebook-frontend/dist/* ./dist
 
-      # Production deployment             
+      # Production deployment to fly.io             
       - uses: superfly/flyctl-actions/setup-flyctl@master         
       - name: Deploy the app
         working-directory: ./phonebook-backend      
@@ -63,7 +63,7 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      # Discord hooks for failure notifications
+      # Discord hook for failure notifications (success notification takes place after bumping the version)
       - name: Production deployment failed
         uses: stegzilla/discord-notify@v2
         if: ${{ failure() }}
@@ -94,7 +94,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
-    # Discord hooks for success notifications - get the new tag into the message
+    # Discord hook for success notifications
     - name: The build has succeeded
       uses: stegzilla/discord-notify@v2
       if: ${{ success() }}
